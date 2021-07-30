@@ -1,0 +1,20 @@
+#pragma kernel IntersectionKernel
+
+Texture2D<float4> SilhouetteRT;
+Texture2D<float4> PlayerRT;
+
+RWTexture2D<float4> Result;
+
+int2 Resolution;
+
+[numthreads(8,8,1)]
+void IntersectionKernel(uint3 id : SV_DispatchThreadID)
+{
+	if (id.x < Resolution.x && id.y < Resolution.y)
+	{
+		float silhouette = SilhouetteRT[id.xy];
+		float player = PlayerRT[id.xy];
+		float gb = silhouette > 0.5f && player > 0.5f;
+        Result[id.xy] = float4(player > 0.5f || silhouette > 0.5f, gb, gb, 1.0f);
+    }
+}
